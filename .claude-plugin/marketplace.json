@@ -1,0 +1,39 @@
+{
+  "name": "luminary-lane-tools",
+  "owner": {
+    "name": "Luminary Lane",
+    "email": "raveen.b@gmail.com"
+  },
+  "metadata": {
+    "description": "AI-powered tools for social media automation and content creation",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "x-twitter",
+      "source": {
+        "source": "github",
+        "repo": "luminarylane/x-twitter-mcp-server"
+      },
+      "description": "Interact with X/Twitter — post tweets, create threads, search, follow, and monitor your account directly in Claude.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Raveen Beemsingh",
+        "email": "raveen.b@gmail.com"
+      },
+      "homepage": "https://github.com/luminarylane/x-twitter-mcp-server",
+      "repository": "https://github.com/luminarylane/x-twitter-mcp-server",
+      "license": "MIT",
+      "keywords": [
+        "twitter",
+        "x",
+        "tweet",
+        "social-media",
+        "automation",
+        "mcp"
+      ],
+      "category": "social-media",
+      "tags": ["twitter", "x", "social", "automation", "posting"]
+    }
+  ]
+}

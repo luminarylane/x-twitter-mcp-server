@@ -1,0 +1,178 @@
+{
+  "name": "x-twitter-mcp-server",
+  "title": "X/Twitter MCP Server — Post, Search & Monitor X/Twitter with Claude",
+  "description": "MCP server for X/Twitter. Post tweets, create threads, reply, search, follow, and monitor your account directly in Claude Desktop. Supports OAuth 1.0a (read+write) and Bearer Token (read-only).",
+  "version": "1.0.0",
+  "author": {
+    "name": "Raveen Beemsingh",
+    "email": "raveen.b@gmail.com",
+    "github": "raveenb"
+  },
+  "license": "MIT",
+  "urls": {
+    "repository": "https://github.com/luminarylane/x-twitter-mcp-server",
+    "homepage": "https://github.com/luminarylane/x-twitter-mcp-server",
+    "documentation": "https://github.com/luminarylane/x-twitter-mcp-server#readme",
+    "issues": "https://github.com/luminarylane/x-twitter-mcp-server/issues",
+    "npm": "https://www.npmjs.com/package/x-twitter-mcp-server"
+  },
+  "categories": [
+    "social-media",
+    "communication",
+    "automation",
+    "claude-integration"
+  ],
+  "keywords": [
+    "twitter",
+    "x",
+    "tweet",
+    "social-media",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "automation",
+    "api"
+  ],
+  "runtime": {
+    "language": "typescript",
+    "minVersion": "18",
+    "package": "x-twitter-mcp-server"
+  },
+  "requirements": {
+    "apiKey": {
+      "name": "X_APP_KEY + X_APP_SECRET + X_ACCESS_TOKEN + X_ACCESS_SECRET",
+      "description": "X/Twitter OAuth 1.0a credentials (full read+write). Or X_BEARER_TOKEN for read-only.",
+      "required": true,
+      "url": "https://developer.x.com/en/portal/dashboard"
+    }
+  },
+  "installation": [
+    {
+      "type": "npx",
+      "command": "npx -y x-twitter-mcp-server"
+    },
+    {
+      "type": "npm",
+      "command": "npm install -g x-twitter-mcp-server"
+    }
+  ],
+  "configuration": {
+    "claude": {
+      "mcpServers": {
+        "x-twitter": {
+          "command": "npx",
+          "args": ["-y", "x-twitter-mcp-server"],
+          "env": {
+            "X_APP_KEY": "your-consumer-key",
+            "X_APP_SECRET": "your-consumer-secret",
+            "X_ACCESS_TOKEN": "your-access-token",
+            "X_ACCESS_SECRET": "your-access-token-secret"
+          }
+        }
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "x_get_timeline",
+      "description": "Get the home timeline — recent posts from followed accounts",
+      "category": "sense"
+    },
+    {
+      "name": "x_get_notifications",
+      "description": "Get mentions of the authenticated user",
+      "category": "sense"
+    },
+    {
+      "name": "x_search_tweets",
+      "description": "Search tweets by keyword, hashtag, or from:username",
+      "category": "sense"
+    },
+    {
+      "name": "x_get_tweet_thread",
+      "description": "Fetch a tweet and its full conversation thread",
+      "category": "sense"
+    },
+    {
+      "name": "x_get_profile",
+      "description": "Get a user profile by username",
+      "category": "sense"
+    },
+    {
+      "name": "x_get_followers",
+      "description": "Get followers list for any account",
+      "category": "sense"
+    },
+    {
+      "name": "x_get_user_tweets",
+      "description": "Get recent tweets from a specific user",
+      "category": "sense"
+    },
+    {
+      "name": "x_search_users",
+      "description": "Search for users by name or keyword",
+      "category": "sense"
+    },
+    {
+      "name": "x_get_media_specs",
+      "description": "Get X/Twitter media format specs (dimensions, size limits, formats)",
+      "category": "sense"
+    },
+    {
+      "name": "x_create_tweet",
+      "description": "Post a tweet — text, link card, image, or video",
+      "category": "act"
+    },
+    {
+      "name": "x_reply",
+      "description": "Reply to a tweet",
+      "category": "act"
+    },
+    {
+      "name": "x_create_thread",
+      "description": "Post a series of connected tweets (thread)",
+      "category": "act"
+    },
+    {
+      "name": "x_quote_tweet",
+      "description": "Quote-tweet with commentary",
+      "category": "act"
+    },
+    {
+      "name": "x_like",
+      "description": "Like a tweet",
+      "category": "act"
+    },
+    {
+      "name": "x_retweet",
+      "description": "Retweet",
+      "category": "act"
+    },
+    {
+      "name": "x_follow",
+      "description": "Follow a user by username",
+      "category": "act"
+    },
+    {
+      "name": "x_unfollow",
+      "description": "Unfollow a user by username",
+      "category": "act"
+    },
+    {
+      "name": "x_delete_tweet",
+      "description": "Delete a tweet",
+      "category": "act"
+    }
+  ],
+  "features": [
+    "18 tools — 9 SENSE (read) + 9 ACT (write)",
+    "OAuth 1.0a full read+write and Bearer Token read-only modes",
+    "Per-call credentials for multi-account support",
+    "Token-bucket rate limiter respecting X free-tier limits",
+    "Auto-retry with exponential backoff on HTTP 429",
+    "SSRF protection for media URL uploads",
+    "Prompt injection protection via randomised EXTCONTENT markers",
+    "In-memory client cache with 4-hour TTL",
+    "Username to user ID resolution cache"
+  ]
+}
