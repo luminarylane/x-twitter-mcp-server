@@ -16,6 +16,10 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { createClient, credentialHash } from "./client.js";
 import type { Credentials } from "./client.js";
+import {
+  resolveSearchBackend,
+  searchTweetsWithHermesTweet,
+} from "./hermes-tweet.js";
 import { textResult, errorResult, senseResult } from "./response.js";
 import { waitForRateLimit, withRetry } from "./rate-limiter.js";
 import { createRequire } from "node:module";
@@ -723,11 +727,34 @@ server.registerTool(
         .optional()
         .describe("Number of results (default: 10, max: 100)"),
       paginationToken: z.string().optional().describe("Pagination token"),
+      searchBackend: z
+        .enum(["x-api", "hermes-tweet"])
+        .optional()
+        .describe(
+          "Search backend. Defaults to x-api. Use hermes-tweet with HERMES_TWEET_API_KEY or XQUIK_API_KEY for optional read-only Hermes Tweet/Xquik search.",
+        ),
     },
   },
   safeHandler("x_search_tweets", async (args) => {
     if (!args.query.trim())
       return errorResult("Invalid input", "Query cannot be empty");
+
+    if (resolveSearchBackend(args.searchBackend) === "hermes-tweet") {
+      const response = await searchTweetsWithHermesTweet({
+        query: args.query,
+        maxResults: args.maxResults,
+        paginationToken: args.paginationToken,
+      });
+      return senseResult(
+        {
+          ...response,
+          query: args.query,
+          backend: "hermes-tweet",
+        },
+        "Hermes Tweet/Xquik",
+      );
+    }
+
     const result = await getClient(args, "x_search_tweets");
     if (!result.ok) return result.error;
     const { client } = result;

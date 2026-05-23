@@ -85,7 +85,7 @@
     },
     {
       "name": "x_search_tweets",
-      "description": "Search tweets by keyword, hashtag, or from:username",
+      "description": "Search tweets by keyword, hashtag, or from:username via X API or optional Hermes Tweet/Xquik backend",
       "category": "sense"
     },
     {
@@ -168,6 +168,7 @@
     "18 tools — 9 SENSE (read) + 9 ACT (write)",
     "OAuth 1.0a full read+write and Bearer Token read-only modes",
     "Per-call credentials for multi-account support",
+    "Optional Hermes Tweet/Xquik backend for read-only tweet search",
     "Token-bucket rate limiter respecting X free-tier limits",
     "Auto-retry with exponential backoff on HTTP 429",
     "SSRF protection for media URL uploads",
