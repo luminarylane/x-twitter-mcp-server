@@ -9,13 +9,7 @@
   "homepage": "https://github.com/luminarylane/x-twitter-mcp-server",
   "repository": "https://github.com/luminarylane/x-twitter-mcp-server",
   "license": "MIT",
-  "keywords": [
-    "twitter",
-    "x",
-    "tweet",
-    "social-media",
-    "automation"
-  ],
+  "keywords": ["twitter", "x", "tweet", "social-media", "automation"],
   "mcpServers": {
     "x-twitter": {
       "command": "npx",

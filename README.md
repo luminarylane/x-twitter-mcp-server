@@ -12,17 +12,20 @@ A Model Context Protocol (MCP) server that enables Claude Desktop (and other MCP
 ## ✨ Features
 
 ### 🔐 Flexible Authentication
+
 - **OAuth 1.0a** — Full read + write access (post, reply, like, retweet, follow)
 - **Bearer Token** — App-only read access (search, timelines, profiles)
 - **Per-call credentials** — Pass credentials as tool arguments for multi-account setups
 - **Env var defaults** — Set once in environment, reuse across all tool calls
 
 ### 🛡️ Security
+
 - **SSRF protection** — Blocks private/internal IPs when uploading media from URLs
 - **Prompt injection protection** — External content wrapped in randomised `EXTCONTENT` markers
 - **No secrets in code** — All credentials resolved from env vars or per-call arguments
 
 ### ⚡ Performance
+
 - **In-memory client cache** — Reuses authenticated clients (4h TTL) to avoid redundant handshakes
 - **Username → ID cache** — Resolves `@username` to user IDs once, caches for 4h
 - **Token-bucket rate limiter** — Respects X free-tier limits before hitting the API
@@ -92,6 +95,7 @@ If you're using [Claude Code](https://claude.ai/code), install directly via the 
 ```
 
 Or install directly without adding the marketplace:
+
 ```bash
 /plugin install x-twitter@luminarylane/x-twitter-mcp-server
 ```
@@ -108,6 +112,7 @@ X_BEARER_TOKEN=your-token npx -y x-twitter-mcp-server
 ```
 
 **Claude Desktop configuration:**
+
 ```json
 {
   "mcpServers": {
@@ -126,6 +131,7 @@ X_BEARER_TOKEN=your-token npx -y x-twitter-mcp-server
 ```
 
 > **Read-only setup** (bearer token only):
+>
 > ```json
 > { "env": { "X_BEARER_TOKEN": "your-bearer-token" } }
 > ```
@@ -137,6 +143,7 @@ npm install -g x-twitter-mcp-server
 ```
 
 Then configure Claude Desktop:
+
 ```json
 {
   "mcpServers": {
@@ -163,6 +170,7 @@ npm run build
 ```
 
 Then configure Claude Desktop:
+
 ```json
 {
   "mcpServers": {
@@ -184,11 +192,11 @@ Then configure Claude Desktop:
 
 The server resolves credentials in this priority order:
 
-| Priority | Mode | Env Vars | Access |
-|----------|------|----------|--------|
-| 1 | OAuth 1.0a | `X_APP_KEY` + `X_APP_SECRET` + `X_ACCESS_TOKEN` + `X_ACCESS_SECRET` | Full read + write |
-| 2 | Bearer Token | `X_BEARER_TOKEN` | Read-only |
-| 3 | Per-call | Pass as tool arguments | Either mode |
+| Priority | Mode         | Env Vars                                                            | Access            |
+| -------- | ------------ | ------------------------------------------------------------------- | ----------------- |
+| 1        | OAuth 1.0a   | `X_APP_KEY` + `X_APP_SECRET` + `X_ACCESS_TOKEN` + `X_ACCESS_SECRET` | Full read + write |
+| 2        | Bearer Token | `X_BEARER_TOKEN`                                                    | Read-only         |
+| 3        | Per-call     | Pass as tool arguments                                              | Either mode       |
 
 **Per-call credentials** let you manage multiple X accounts from one server instance — pass `appKey`, `appSecret`, `accessToken`, `accessSecret` (or `bearerToken`) directly as tool arguments.
 
@@ -211,13 +219,13 @@ Once configured, ask Claude to:
 
 The server enforces X free-tier rate limits client-side before hitting the API:
 
-| Category | Limit | Window |
-|----------|-------|--------|
-| General reads | 450 requests | 15 min |
-| Timeline reads | 900 requests | 15 min |
-| Tweet creation | 50 tweets | 24 hours |
-| Likes | 1,000 likes | 24 hours |
-| Retweet / Follow / Unfollow | 5 actions | 15 min |
+| Category                    | Limit        | Window   |
+| --------------------------- | ------------ | -------- |
+| General reads               | 450 requests | 15 min   |
+| Timeline reads              | 900 requests | 15 min   |
+| Tweet creation              | 50 tweets    | 24 hours |
+| Likes                       | 1,000 likes  | 24 hours |
+| Retweet / Follow / Unfollow | 5 actions    | 15 min   |
 
 When a limit is reached the server returns a structured error with a `retryAfterSeconds` field and an `action` hint for the agent.
 
@@ -228,6 +236,7 @@ When a limit is reached the server returns a structured error with a `retryAfter
 ```
 Error: Missing credentials
 ```
+
 Ensure all four OAuth 1.0a variables are set, or at minimum `X_BEARER_TOKEN` for read-only access.
 
 ### 401 Authentication failed
@@ -235,6 +244,7 @@ Ensure all four OAuth 1.0a variables are set, or at minimum `X_BEARER_TOKEN` for
 ```
 AUTH_FAILED: Credentials are invalid or expired.
 ```
+
 Regenerate your Access Token and Secret in the [X Developer Portal](https://developer.x.com) and update `X_ACCESS_TOKEN` / `X_ACCESS_SECRET`.
 
 ### 403 Permission denied
@@ -242,6 +252,7 @@ Regenerate your Access Token and Secret in the [X Developer Portal](https://deve
 ```
 PERMISSION_DENIED: Your token may lack write permissions.
 ```
+
 Go to **X Developer Portal → App Settings → User authentication → Permissions** and set it to **Read and write**, then regenerate your tokens.
 
 ### 403 Duplicate tweet
@@ -249,6 +260,7 @@ Go to **X Developer Portal → App Settings → User authentication → Permissi
 ```
 DUPLICATE_TWEET: X rejected this as a duplicate.
 ```
+
 Change the tweet text to make it unique.
 
 ### 400 Tier restricted
@@ -256,6 +268,7 @@ Change the tweet text to make it unique.
 ```
 TIER_RESTRICTED: This endpoint is not available on your X API tier.
 ```
+
 Some endpoints (e.g., full-archive search) require a Basic or Pro tier. The `x_search_tweets` tool uses recent search which is available on the free tier.
 
 ### Rate limit exceeded
@@ -263,6 +276,7 @@ Some endpoints (e.g., full-archive search) require a Basic or Pro tier. The `x_s
 ```
 Rate limited: Wait Xs then retry.
 ```
+
 The server handles this automatically for short waits (≤ 60s). For longer windows it returns the `retryAfterSeconds` so the agent can defer the task.
 
 ### Reporting Issues

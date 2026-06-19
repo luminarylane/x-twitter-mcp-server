@@ -39,9 +39,9 @@ jobs:
         if: steps.check_skip.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
 
       - name: Install dependencies
         if: steps.check_skip.outputs.skip != 'true'
@@ -121,10 +121,15 @@ jobs:
       - name: Bump version in package.json
         if: steps.version.outputs.new_release == 'true'
         run: |
-          npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
-          git add package.json package-lock.json
-          git commit -m "chore(release): ${{ steps.version.outputs.new_version }} [skip-release]"
-          git tag "v${{ steps.version.outputs.new_version }}"
+          if [ "${{ steps.version.outputs.bump }}" = "initial" ]; then
+            # First release — version already matches, just tag it
+            git tag "v${{ steps.version.outputs.new_version }}"
+          else
+            npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+            git add package.json package-lock.json
+            git commit -m "chore(release): ${{ steps.version.outputs.new_version }} [skip-release]"
+            git tag "v${{ steps.version.outputs.new_version }}"
+          fi
 
       - name: Push version commit and tag
         if: steps.version.outputs.new_release == 'true'
