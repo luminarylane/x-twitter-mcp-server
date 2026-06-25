@@ -122,13 +122,12 @@ jobs:
         if: steps.version.outputs.new_release == 'true'
         run: |
           if [ "${{ steps.version.outputs.bump }}" = "initial" ]; then
-            # First release — version already matches, just tag it
-            git tag "v${{ steps.version.outputs.new_version }}"
+            git tag -a "v${{ steps.version.outputs.new_version }}" -m "Release v${{ steps.version.outputs.new_version }}"
           else
             npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
             git add package.json package-lock.json
             git commit -m "chore(release): ${{ steps.version.outputs.new_version }} [skip-release]"
-            git tag "v${{ steps.version.outputs.new_version }}"
+            git tag -a "v${{ steps.version.outputs.new_version }}" -m "Release v${{ steps.version.outputs.new_version }}"
           fi
 
       - name: Push version commit and tag
