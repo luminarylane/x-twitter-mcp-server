@@ -14,6 +14,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import logger from "./lib/logger.js";
+import {
+  getSessionTrace,
+  flushLangfuse,
+  shutdownLangfuse,
+} from "./lib/langfuse.js";
 import { createClient, credentialHash } from "./client.js";
 import type { Credentials } from "./client.js";
 import { textResult, errorResult, senseResult } from "./response.js";
@@ -71,7 +77,7 @@ function resolveCredentials(args: CredentialArgs): Credentials | null {
       !accessToken && "X_ACCESS_TOKEN",
       !accessSecret && "X_ACCESS_SECRET",
     ].filter(Boolean);
-    console.error(
+    logger.error(
       `[credentials] WARNING: ${oauthCount}/4 OAuth 1.0a credentials provided. Missing: ${missing.join(", ")}. Falling back to bearer token (read-only).`,
     );
   }
@@ -247,8 +253,16 @@ function safeHandler<T>(
   ReturnType<typeof textResult | typeof senseResult | typeof errorResult>
 > {
   return async (args: T) => {
+    const trace = getSessionTrace("x-twitter-mcp-server");
+    const span = trace?.span({
+      name: `tool:${toolName}`,
+      input: args as Record<string, unknown>,
+    });
+
     try {
-      return await handler(args);
+      const result = await handler(args);
+      span?.update({ output: result });
+      return result;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       const detail = extractApiDetail(e);
@@ -257,14 +271,20 @@ function safeHandler<T>(
           ? (e as { code: number }).code
           : undefined;
       const action = suggestAction(toolName, statusCode, detail);
-      console.error(
+      logger.error(
         `[${toolName}] Error: ${msg}${detail ? ` — ${detail}` : ""}`,
       );
+      span?.update({
+        output: { error: detail || msg, statusCode },
+        level: "ERROR",
+      });
       return errorResult("API error", `${toolName} failed: ${detail || msg}`, {
         ...(statusCode && { statusCode }),
         ...(detail && detail !== msg && { rawError: msg }),
         ...(action && { action }),
       });
+    } finally {
+      span?.end();
     }
   };
 }
@@ -328,7 +348,7 @@ function isAllowedMediaUrl(url: string): boolean {
     }
     return true;
   } catch (e) {
-    console.error(
+    logger.error(
       `[isAllowedMediaUrl] Failed to parse URL: ${url} — ${e instanceof Error ? e.message : String(e)}`,
     );
     return false;
@@ -1060,6 +1080,38 @@ server.registerTool(
 // ACT Tools (write)
 // =====================
 
+/**
+ * Post an optional first-comment reply to a just-created tweet (#1995).
+ * Mirrors the LinkedIn reference: 3-5s natural delay + withRetry. Returns
+ * `{ firstCommentId }` on success, `{ errMsg }` on failure (the caller surfaces
+ * the #1931 partial-success errorResult since the tweet is already live), or
+ * `{}` when no first comment was requested.
+ */
+export async function postTweetFirstComment(
+  client: TwitterApi,
+  tweetId: string,
+  firstComment: string | undefined,
+): Promise<{ firstCommentId?: string; errMsg?: string }> {
+  const text = firstComment?.trim();
+  if (!text) return {};
+  const commentText = text.slice(0, 280);
+  try {
+    const delayMs = 3000 + Math.random() * 2000;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    const replyResp = await withRetry(() =>
+      client.v2.reply(commentText, tweetId),
+    );
+    return { firstCommentId: replyResp.data.id };
+  } catch (commentError) {
+    const errMsg =
+      commentError instanceof Error
+        ? commentError.message
+        : String(commentError);
+    logger.error(`[x_create_tweet] First comment failed: ${errMsg}`);
+    return { errMsg };
+  }
+}
+
 server.registerTool(
   "x_create_tweet",
   {
@@ -1094,6 +1146,12 @@ server.registerTool(
         })
         .describe(
           "URL of a video to embed in the tweet (MP4 only, max 512MB). Must be https://. Mutually exclusive with linkUrl and imageUrl.",
+        ),
+      firstComment: z
+        .string()
+        .optional()
+        .describe(
+          "Optional single follow-up reply posted a few seconds after the tweet (for a link/CTA), max 280 chars. Distinct from x_create_thread (which posts N chained tweets) — this is a single reply.",
         ),
     },
   },
@@ -1132,11 +1190,32 @@ server.registerTool(
       );
 
       const mediaType = args.videoUrl ? "video" : "image";
+      const createdTweetId = response.data.id;
+      const embedFlag = args.videoUrl
+        ? { videoEmbed: true }
+        : { imageEmbed: true };
+
+      const fc = await postTweetFirstComment(
+        client,
+        createdTweetId,
+        args.firstComment,
+      );
+      if (fc.errMsg) {
+        return errorResult(
+          "Partial failure",
+          `Tweet created (${createdTweetId}) but first comment failed: ${fc.errMsg}. Use x_reply to retry.`,
+          { id: createdTweetId, text: response.data.text, ...embedFlag },
+        );
+      }
+
       return textResult({
-        id: response.data.id,
+        id: createdTweetId,
         text: response.data.text,
-        message: `Tweet created successfully with ${mediaType}`,
-        ...(args.videoUrl ? { videoEmbed: true } : { imageEmbed: true }),
+        message: fc.firstCommentId
+          ? `Tweet created with first comment (${mediaType})`
+          : `Tweet created successfully with ${mediaType}`,
+        ...embedFlag,
+        ...(fc.firstCommentId && { firstCommentId: fc.firstCommentId }),
       });
     }
 
@@ -1154,11 +1233,33 @@ server.registerTool(
 
     const response = await withRetry(() => client.v2.tweet(finalText));
 
+    const createdTweetId = response.data.id;
+
+    const fc = await postTweetFirstComment(
+      client,
+      createdTweetId,
+      args.firstComment,
+    );
+    if (fc.errMsg) {
+      return errorResult(
+        "Partial failure",
+        `Tweet created (${createdTweetId}) but first comment failed: ${fc.errMsg}. Use x_reply to retry.`,
+        {
+          id: createdTweetId,
+          text: response.data.text,
+          ...(args.linkUrl && { linkPreview: true }),
+        },
+      );
+    }
+
     return textResult({
-      id: response.data.id,
+      id: createdTweetId,
       text: response.data.text,
-      message: "Tweet created successfully",
+      message: fc.firstCommentId
+        ? "Tweet created with first comment"
+        : "Tweet created successfully",
       ...(args.linkUrl && { linkPreview: true }),
+      ...(fc.firstCommentId && { firstCommentId: fc.firstCommentId }),
     });
   }),
 );
@@ -1482,10 +1583,12 @@ server.registerTool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("X/Twitter MCP Server running on stdio");
+  logger.error("X/Twitter MCP Server running on stdio");
 }
 
-main().catch((e) => {
-  console.error("Fatal:", e);
+main().catch(async (e) => {
+  logger.error({ err: e }, "Fatal");
+  await flushLangfuse();
+  await shutdownLangfuse();
   process.exit(1);
 });

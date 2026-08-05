@@ -1,10 +1,10 @@
 # 🐦 X/Twitter MCP Server
 
 [![CI](https://github.com/luminarylane/x-twitter-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/luminarylane/x-twitter-mcp-server/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/x-twitter-mcp-server)](https://www.npmjs.com/package/x-twitter-mcp-server)
+[![npm](https://img.shields.io/npm/v/@luminarylane/x-twitter-mcp-server)](https://www.npmjs.com/package/@luminarylane/x-twitter-mcp-server)
 [![MCP](https://img.shields.io/badge/MCP-1.0-blue)](https://modelcontextprotocol.io)
 [![GitHub Release](https://img.shields.io/github/v/release/luminarylane/x-twitter-mcp-server)](https://github.com/luminarylane/x-twitter-mcp-server/releases)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-22.14%2B-green)](https://nodejs.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 A Model Context Protocol (MCP) server that enables Claude Desktop (and other MCP clients) to interact with X/Twitter — post tweets, read timelines, search content, manage follows, and monitor your account.
@@ -63,7 +63,7 @@ A Model Context Protocol (MCP) server that enables Claude Desktop (and other MCP
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 22.14 or higher
 - An [X Developer account](https://developer.x.com) with an app created
 - Claude Desktop (or any MCP-compatible client)
 
@@ -81,6 +81,8 @@ A Model Context Protocol (MCP) server that enables Claude Desktop (and other MCP
 For read-only access, a **Bearer Token** alone is sufficient.
 
 ## 📦 Installation
+
+Published package: [@luminarylane/x-twitter-mcp-server on npm](https://www.npmjs.com/package/@luminarylane/x-twitter-mcp-server)
 
 ### Option 0: Claude Code Plugin (Simplest for Claude Code Users) 🔌
 
@@ -108,7 +110,7 @@ Run directly without installation:
 
 ```bash
 # Test it works
-X_BEARER_TOKEN=your-token npx -y x-twitter-mcp-server
+X_BEARER_TOKEN=your-token npx --yes @luminarylane/x-twitter-mcp-server
 ```
 
 **Claude Desktop configuration:**
@@ -118,7 +120,7 @@ X_BEARER_TOKEN=your-token npx -y x-twitter-mcp-server
   "mcpServers": {
     "x-twitter": {
       "command": "npx",
-      "args": ["-y", "x-twitter-mcp-server"],
+      "args": ["--yes", "@luminarylane/x-twitter-mcp-server"],
       "env": {
         "X_APP_KEY": "your-consumer-key",
         "X_APP_SECRET": "your-consumer-secret",
@@ -139,7 +141,7 @@ X_BEARER_TOKEN=your-token npx -y x-twitter-mcp-server
 ### Option 2: Install from npm
 
 ```bash
-npm install -g x-twitter-mcp-server
+npm install -g @luminarylane/x-twitter-mcp-server
 ```
 
 Then configure Claude Desktop:
@@ -148,7 +150,7 @@ Then configure Claude Desktop:
 {
   "mcpServers": {
     "x-twitter": {
-      "command": "x-twitter-mcp-server",
+      "command": "luminarylane-x-twitter-mcp",
       "env": {
         "X_APP_KEY": "your-consumer-key",
         "X_APP_SECRET": "your-consumer-secret",
