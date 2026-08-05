@@ -1,9 +1,10 @@
 {
   "name": "@luminarylane/x-twitter-mcp-server",
-  "version": "1.0.66",
+  "version": "1.0.67",
   "description": "Standalone X/Twitter MCP Server — SENSE + ACT tools for the X API v2",
   "type": "module",
   "main": "dist/index.js",
+  "exports": { ".": "./dist/index.js", "./lib": "./dist/lib/index.js" },
   "bin": {
     "luminarylane-x-twitter-mcp": "dist/index.js"
   },
