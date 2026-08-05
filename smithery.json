@@ -2,7 +2,7 @@
   "name": "x-twitter-mcp-server",
   "title": "X/Twitter MCP Server — Post, Search & Monitor X/Twitter with Claude",
   "description": "MCP server for X/Twitter. Post tweets, create threads, reply, search, follow, and monitor your account directly in Claude Desktop. Supports OAuth 1.0a (read+write) and Bearer Token (read-only).",
-  "version": "1.0.65",
+  "version": "1.0.66",
   "author": {
     "name": "Raveen Beemsingh",
     "email": "raveen.b@gmail.com",
