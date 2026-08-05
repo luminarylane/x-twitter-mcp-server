@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["20", "22"]
+        node-version: ["22", "24"]
 
     steps:
       - uses: actions/checkout@v7
@@ -25,19 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Format check with prettier
-        run: npx prettier --check .
+      - name: Check
+        run: npm run check
 
-      - name: Type check with tsc
-        run: npx tsc --noEmit
+      - name: Verify package contents
+        run: npm pack --dry-run
 
-      - name: Build
-        run: npm run build
-
-      - name: Run tests
-        run: npm test
-
-  # Single status check for branch protection rules
   test:
     needs: [test-matrix]
     runs-on: ubuntu-latest
@@ -49,4 +42,4 @@ jobs:
             echo "Test matrix failed with result: ${{ needs.test-matrix.result }}"
             exit 1
           fi
-          echo "All tests passed!"
+          echo "All checks passed!"

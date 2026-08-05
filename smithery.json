@@ -2,7 +2,7 @@
   "name": "x-twitter-mcp-server",
   "title": "X/Twitter MCP Server — Post, Search & Monitor X/Twitter with Claude",
   "description": "MCP server for X/Twitter. Post tweets, create threads, reply, search, follow, and monitor your account directly in Claude Desktop. Supports OAuth 1.0a (read+write) and Bearer Token (read-only).",
-  "version": "1.0.0",
+  "version": "1.0.65",
   "author": {
     "name": "Raveen Beemsingh",
     "email": "raveen.b@gmail.com",
@@ -14,7 +14,7 @@
     "homepage": "https://github.com/luminarylane/x-twitter-mcp-server",
     "documentation": "https://github.com/luminarylane/x-twitter-mcp-server#readme",
     "issues": "https://github.com/luminarylane/x-twitter-mcp-server/issues",
-    "npm": "https://www.npmjs.com/package/x-twitter-mcp-server"
+    "npm": "https://www.npmjs.com/package/@luminarylane/x-twitter-mcp-server"
   },
   "categories": [
     "social-media",
@@ -35,8 +35,8 @@
   ],
   "runtime": {
     "language": "typescript",
-    "minVersion": "18",
-    "package": "x-twitter-mcp-server"
+    "minVersion": "22.14",
+    "package": "@luminarylane/x-twitter-mcp-server"
   },
   "requirements": {
     "apiKey": {
@@ -49,11 +49,11 @@
   "installation": [
     {
       "type": "npx",
-      "command": "npx -y x-twitter-mcp-server"
+      "command": "npx --yes @luminarylane/x-twitter-mcp-server"
     },
     {
       "type": "npm",
-      "command": "npm install -g x-twitter-mcp-server"
+      "command": "npm install -g @luminarylane/x-twitter-mcp-server"
     }
   ],
   "configuration": {
@@ -61,7 +61,7 @@
       "mcpServers": {
         "x-twitter": {
           "command": "npx",
-          "args": ["-y", "x-twitter-mcp-server"],
+          "args": ["--yes", "@luminarylane/x-twitter-mcp-server"],
           "env": {
             "X_APP_KEY": "your-consumer-key",
             "X_APP_SECRET": "your-consumer-secret",

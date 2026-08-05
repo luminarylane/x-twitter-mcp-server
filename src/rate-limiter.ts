@@ -11,6 +11,8 @@
  * This is a simple in-memory implementation — no external dependencies.
  */
 
+import logger from "./lib/logger.js";
+
 interface BucketConfig {
   maxTokens: number;
   refillRate: number; // tokens per millisecond
@@ -176,7 +178,7 @@ export async function waitForRateLimit(
     return result;
   }
 
-  console.error(
+  logger.error(
     `[rate-limit] Waiting ${Math.ceil(result.retryAfterMs / 1000)}s for ${toolName ?? "read"} bucket...`,
   );
   await sleep(result.retryAfterMs);
@@ -212,7 +214,7 @@ export async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
       if (!is429 || attempt === MAX_429_RETRIES) throw e;
 
       const backoffMs = 2000 * Math.pow(2, attempt);
-      console.error(
+      logger.error(
         `[rate-limit] X/Twitter 429 — backing off ${backoffMs / 1000}s (attempt ${attempt + 1}/${MAX_429_RETRIES})...`,
       );
       await sleep(backoffMs);

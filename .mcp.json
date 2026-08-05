@@ -1,0 +1,16 @@
+{
+  "name": "io.github.luminarylane/x-twitter-mcp-server",
+  "description": "Read and publish X/Twitter content through the X API v2.",
+  "repository": {
+    "url": "https://github.com/luminarylane/x-twitter-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@luminarylane/x-twitter-mcp-server",
+      "version": "1.0.65",
+      "transport": { "type": "stdio" }
+    }
+  ]
+}

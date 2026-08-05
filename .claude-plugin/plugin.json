@@ -1,7 +1,7 @@
 {
   "name": "x-twitter",
   "description": "Interact with X/Twitter — post tweets, create threads, search, follow, and monitor your account directly in Claude.",
-  "version": "1.0.0",
+  "version": "1.0.65",
   "author": {
     "name": "Raveen Beemsingh",
     "email": "raveen.b@gmail.com"
@@ -13,7 +13,7 @@
   "mcpServers": {
     "x-twitter": {
       "command": "npx",
-      "args": ["-y", "x-twitter-mcp-server"],
+      "args": ["--yes", "@luminarylane/x-twitter-mcp-server"],
       "env": {
         "X_APP_KEY": "${X_APP_KEY}",
         "X_APP_SECRET": "${X_APP_SECRET}",
